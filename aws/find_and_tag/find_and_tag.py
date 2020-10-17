@@ -1,14 +1,10 @@
 from utils import match_any_expression, merge_distinct_tags
 import boto3
-import logging
 import importlib
+import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
-# Issues
-# Does not support pagination
-# Does not filter nested properties
 
 ########################################################################
 # Example Request:
@@ -42,9 +38,11 @@ def validate_event(event):
 
     for resource_name, resource in event['resources'].items():
         if ('nameExpressions' not in resource
-           or type(resource['nameExpressions']) != list):
+           or type(resource['nameExpressions']) != list
+           or len(resource['nameExpressions']) == 0):
             raise AssertionError(
-                '"resources.nameExpressions" is required and is a list'
+                '"resources.nameExpressions" is required ' +
+                'and is a list (not empty)'
             )
 
         if ('filterAttribute' not in resource
@@ -58,12 +56,14 @@ def validate_event(event):
             raise AssertionError('"resources.tags" is required and is a list')
 
         invalid_tags = list(filter(
-            lambda tag: len(set(tag.keys()).intersection({'Key', 'Value'})) != 2,
+            lambda tag:
+                len(set(tag.keys()).intersection({'Key', 'Value'})) != 2,
             resource['tags']
         ))
         if len(invalid_tags) > 0:
             raise AssertionError(
-                'each tag in "resources.tags" needs a "Key" and "Value" attribute'
+                'each tag in "resources.tags" needs a ' +
+                '"Key" and "Value" attribute'
             )
 
 
