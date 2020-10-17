@@ -2,8 +2,10 @@ from utils import match_any_expression, merge_distinct_tags
 import boto3
 import importlib
 import logging
+import structured_logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+structured_logging.init()
 
 
 ########################################################################
