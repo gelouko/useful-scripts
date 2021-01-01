@@ -14,6 +14,10 @@ This script will enable you to create a config file and run structurizr like thi
 $ structurizr <DSL_FILE>
 ```
 
+## Requirements
+
+- Python 3
+
 ## Installation
 
 To enable the command, just unzip structurizr in the `~/.structurizr` directory, or set the `STRUCTURIZR_HOME` environment variable pointing to the folder where you have installed the structurizr jar.
