@@ -1,0 +1,48 @@
+#!/usr/local/bin/python3
+
+import json
+import os
+import sys
+from subprocess import run
+from argparse import ArgumentParser
+
+STRUCTURIZR_HOME = os.getenv(
+    'STRUCTURIZR_HOME',
+    f'{os.getenv("HOME")}/.structurizr'
+)
+STRUCTURIZR_CONFIG_FILE = f'{STRUCTURIZR_HOME}/config.json'
+STRUCTURIZR_EXEC_FILES = f'{STRUCTURIZR_HOME}/structurizr-cli-*.jar'
+
+# Parse CLI arguments
+parser = ArgumentParser(description='runs structurizr based on configuration.')
+parser.add_argument('workspace', type=str, help='The workspace file (dsl).')
+parser.add_argument('--id', help='The id of the workspace.')
+parser.add_argument('--key', help="The Structurizr account's key.")
+parser.add_argument('--secret', help="The Structurizr account's secret.")
+
+args = parser.parse_args()
+
+structurizr_config = {}
+
+# Get configuration from file
+if os.path.exists(STRUCTURIZR_CONFIG_FILE):
+    with open(STRUCTURIZR_CONFIG_FILE, 'r') as config:
+        structurizr_config = json.loads(config.read())
+
+credentials = {
+    'id': args.id or structurizr_config['id'],
+    'key': args.key or structurizr_config['key'],
+    'secret': args.secret or structurizr_config['secret']
+}
+
+for key, value in credentials.items():
+    if not value:
+        print(
+            f'The value of "{key}" is missing from CLI configuration and config file.'
+        )
+        sys.exit(2)
+
+run(
+    f'java -jar {STRUCTURIZR_EXEC_FILES} push -id {credentials["id"]} -key {credentials["key"]} -secret {credentials["secret"]} -workspace {args.workspace}',
+    shell=True
+)
